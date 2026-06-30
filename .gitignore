@@ -1,0 +1,24 @@
+# Build artifacts
+target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# Environment
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker volumes
+pgdata/
+
+# Logs
+*.log
+
+# Local Maven installation (downloaded by install-maven.ps1)
+.mvn/apache-maven-*/
