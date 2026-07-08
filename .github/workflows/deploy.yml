@@ -32,7 +32,7 @@ jobs:
         host: ${{ secrets.VM_HOST }}
         username: ec2-user
         key: ${{ secrets.VM_SECRET }}
-        source: "target/smarttools-1.0.0-SNAPSHOT.jar"
+        source: "target/smarttools-1.0.0.jar.jar"
         target: "/home/ec2-user/app"
         strip_components: 1 # Strips the 'target' directory so the JAR is placed directly in '/app'
 
@@ -49,7 +49,7 @@ jobs:
           
           # Find and stop the currently running Spring Boot app process
           echo "Stopping existing Spring Boot service..."
-          PID=$(jps -l | grep 'smarttools-1.0.0-SNAPSHOT.jar' | cut -d' ' -f1 || true)
+          PID=$(jps -l | grep 'smarttools-1.0.0.jar' | cut -d' ' -f1 || true)
           if [ -n "$PID" ]; then
             kill -15 $PID
             # Wait up to 10 seconds for the process to exit gracefully
@@ -75,11 +75,11 @@ jobs:
 
           # Start the new JAR file in the background, redirecting logs to app.log
           echo "Starting the new version..."
-          nohup java -jar /home/ec2-user/app/smarttools-1.0.0-SNAPSHOT.jar > /home/ec2-user/app/app.log 2>&1 &
+          nohup java -jar /home/ec2-user/app/smarttools-1.0.0.jar > /home/ec2-user/app/app.log 2>&1 &
           
           # Short wait and check if the process started successfully
           sleep 3
-          if jps -l | grep 'smarttools-1.0.0-SNAPSHOT.jar' > /dev/null; then
+          if jps -l | grep 'smarttools-1.0.0.jar' > /dev/null; then
             echo "Spring Boot app started successfully!"
           else
             echo "Failed to start Spring Boot app. Check /home/ec2-user/app/app.log for details."
