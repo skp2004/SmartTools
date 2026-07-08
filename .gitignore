@@ -9,6 +9,8 @@ target/
 
 # Environment
 .env
+application-local.yml
+application-*.local.yml
 
 # OS
 .DS_Store
