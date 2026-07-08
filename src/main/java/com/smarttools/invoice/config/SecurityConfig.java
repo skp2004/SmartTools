@@ -42,23 +42,21 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Public endpoints
+                // Public endpoints — no token needed
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/health").permitAll()
-                .requestMatchers("/login/oauth2/**", "/oauth2/**").permitAll()
-                
+                .requestMatchers("/api/convert/**").permitAll()
+
                 // Swagger UI / OpenAPI docs
                 .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                
+
                 // H2 Console (for local testing)
                 .requestMatchers("/h2-console/**").permitAll()
-                
-                // All other requests require authentication
+
+                // All other requests require a valid JWT
                 .anyRequest().authenticated()
             )
-            // Allow frameOptions for H2 console
             .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
-            // Add JWT filter
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -77,13 +75,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        
-        // Parse comma-separated list of allowed origins
+
         List<String> origins = Arrays.stream(allowedOrigins.split(","))
             .map(String::trim)
             .toList();
         config.setAllowedOrigins(origins);
-        
+        config.setAllowedOriginPatterns(List.of("http://localhost:*", "http://127.0.0.1:*"));
+
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Cache-Control"));
         config.setAllowCredentials(true);

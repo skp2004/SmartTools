@@ -53,7 +53,7 @@ public class JwtTokenProvider {
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("name", userPrincipal.getName());
-        claims.put("companyId", userPrincipal.getCompanyId());
+        claims.put("role", userPrincipal.getRole());
 
         return Jwts.builder()
             .subject(Long.toString(userPrincipal.getId()))
@@ -78,17 +78,16 @@ public class JwtTokenProvider {
     }
 
     /**
-     * Extract Company ID from JWT.
+     * Extract Role from JWT.
      */
-    public Long getCompanyIdFromJwt(String token) {
+    public String getRoleFromJwt(String token) {
         Claims claims = Jwts.parser()
             .verifyWith(key)
             .build()
             .parseSignedClaims(token)
             .getPayload();
 
-        Integer companyId = claims.get("companyId", Integer.class);
-        return companyId != null ? companyId.longValue() : null;
+        return claims.get("role", String.class);
     }
 
     /**

@@ -27,7 +27,4 @@ public class RegisterRequest {
     @Size(max = 100, message = "Name must be under 100 characters")
     private String name;
 
-    @NotBlank(message = "Company name is required")
-    @Size(max = 255, message = "Company name must be under 255 characters")
-    private String companyName;
 }

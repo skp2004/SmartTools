@@ -48,16 +48,16 @@ spring:
           starttls:
             enable: true
 
-  # OAuth2 (Google SSO)
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${GOOGLE_CLIENT_ID:placeholder}
-            client-secret: ${GOOGLE_CLIENT_SECRET:placeholder}
-            scope: openid, profile, email
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+  # OAuth2 (Google SSO) — disabled for now, re-enable in Phase 3 when Google credentials are ready
+  # security:
+  #   oauth2:
+  #     client:
+  #       registration:
+  #         google:
+  #           client-id: ${GOOGLE_CLIENT_ID}
+  #           client-secret: ${GOOGLE_CLIENT_SECRET}
+  #           scope: openid, profile, email
+  #           redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
 
 # Springdoc / Swagger
 springdoc:

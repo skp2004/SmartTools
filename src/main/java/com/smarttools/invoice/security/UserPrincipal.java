@@ -16,31 +16,29 @@ public class UserPrincipal implements UserDetails {
     private final String email;
     private final String password;
     private final String name;
-    private final Long companyId;
+    private final String role;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(Long id, String email, String password, String name, Long companyId,
+    public UserPrincipal(Long id, String email, String password, String name, String role,
                          Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.name = name;
-        this.companyId = companyId;
+        this.role = role;
         this.authorities = authorities;
     }
 
     public static UserPrincipal create(User user) {
-        // Simple default authority since we are not implementing detailed role-based access control yet
-        Collection<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
-        
-        Long companyId = user.getCompany() != null ? user.getCompany().getId() : null;
+        String roleName = "ROLE_" + user.getRole().name();
+        Collection<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(roleName));
 
         return new UserPrincipal(
             user.getId(),
             user.getEmail(),
             user.getPasswordHash(),
             user.getName(),
-            companyId,
+            user.getRole().name(),
             authorities
         );
     }

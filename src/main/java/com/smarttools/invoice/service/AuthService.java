@@ -7,7 +7,6 @@ import com.smarttools.invoice.dto.response.JwtAuthResponse;
 import com.smarttools.invoice.entity.*;
 import com.smarttools.invoice.exception.BadRequestException;
 import com.smarttools.invoice.exception.UnauthorizedException;
-import com.smarttools.invoice.repository.CompanyRepository;
 import com.smarttools.invoice.repository.SubscriptionRepository;
 import com.smarttools.invoice.repository.UserRepository;
 import com.smarttools.invoice.security.JwtTokenProvider;
@@ -28,14 +27,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final CompanyRepository companyRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
     private final AuthenticationManager authenticationManager;
 
     /**
-     * Registers a new User and their Company in a single database transaction.
+     * Registers a new User and sets up a default FREE subscription.
      */
     @Transactional
     public JwtAuthResponse register(RegisterRequest request) {
@@ -48,19 +46,12 @@ public class AuthService {
             .email(request.getEmail())
             .passwordHash(passwordEncoder.encode(request.getPassword()))
             .name(request.getName())
-            .authProvider(AuthProvider.LOCAL)
+            .provider(AuthProvider.LOCAL)
+            .role(Role.USER)
             .build();
         User savedUser = userRepository.save(user);
 
-        // 2. Create Company
-        Company company = Company.builder()
-            .owner(savedUser)
-            .name(request.getCompanyName())
-            .build();
-        Company savedCompany = companyRepository.save(company);
-        savedUser.setCompany(savedCompany); // associate bidirectional back-reference
-
-        // 3. Create Subscription (Default FREE plan)
+        // 2. Create Subscription (Default FREE plan)
         Subscription subscription = Subscription.builder()
             .user(savedUser)
             .plan(SubscriptionPlan.FREE)
@@ -69,9 +60,9 @@ public class AuthService {
         subscriptionRepository.save(subscription);
         savedUser.setSubscription(subscription);
 
-        log.info("Registered new user [{}] and company [{}]", savedUser.getEmail(), savedCompany.getName());
+        log.info("Registered new user [{}]", savedUser.getEmail());
 
-        // 4. Generate JWT tokens
+        // 3. Generate JWT tokens
         UserPrincipal userPrincipal = UserPrincipal.create(savedUser);
         String accessToken = tokenProvider.generateAccessToken(userPrincipal);
         String refreshToken = tokenProvider.generateRefreshToken(userPrincipal);
@@ -82,8 +73,9 @@ public class AuthService {
             savedUser.getId(),
             savedUser.getEmail(),
             savedUser.getName(),
-            savedCompany.getId(),
-            savedCompany.getName()
+            savedUser.getRole().name(),
+            subscription.getPlan().name(),
+            savedUser.getPictureUrl()
         );
     }
 
@@ -101,10 +93,9 @@ public class AuthService {
         String accessToken = tokenProvider.generateAccessToken(userPrincipal);
         String refreshToken = tokenProvider.generateRefreshToken(userPrincipal);
 
-        // Load the database company name for response metadata
         User user = userRepository.findById(userPrincipal.getId())
             .orElseThrow(() -> new UnauthorizedException("User not found"));
-        String companyName = user.getCompany() != null ? user.getCompany().getName() : null;
+        String plan = user.getSubscription() != null ? user.getSubscription().getPlan().name() : "FREE";
 
         log.info("User [{}] logged in successfully", userPrincipal.getEmail());
 
@@ -114,8 +105,9 @@ public class AuthService {
             userPrincipal.getId(),
             userPrincipal.getEmail(),
             userPrincipal.getName(),
-            userPrincipal.getCompanyId(),
-            companyName
+            userPrincipal.getRole(),
+            plan,
+            user.getPictureUrl()
         );
     }
 
@@ -136,8 +128,7 @@ public class AuthService {
         UserPrincipal userPrincipal = UserPrincipal.create(user);
         String newAccessToken = tokenProvider.generateAccessToken(userPrincipal);
 
-        String companyName = user.getCompany() != null ? user.getCompany().getName() : null;
-        Long companyId = user.getCompany() != null ? user.getCompany().getId() : null;
+        String plan = user.getSubscription() != null ? user.getSubscription().getPlan().name() : "FREE";
 
         log.info("Refreshed access token for user [{}]", user.getEmail());
 
@@ -147,8 +138,9 @@ public class AuthService {
             user.getId(),
             user.getEmail(),
             user.getName(),
-            companyId,
-            companyName
+            userPrincipal.getRole(),
+            plan,
+            user.getPictureUrl()
         );
     }
 }

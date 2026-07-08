@@ -18,17 +18,19 @@ public class JwtAuthResponse {
     private Long userId;
     private String email;
     private String name;
-    private Long companyId;
-    private String companyName;
+    private String role;
+    private String plan;
+    private String pictureUrl;
 
     public JwtAuthResponse(String accessToken, String refreshToken, Long userId, String email, String name,
-                           Long companyId, String companyName) {
+                           String role, String plan, String pictureUrl) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.userId = userId;
         this.email = email;
         this.name = name;
-        this.companyId = companyId;
-        this.companyName = companyName;
+        this.role = role;
+        this.plan = plan;
+        this.pictureUrl = pictureUrl;
     }
 }

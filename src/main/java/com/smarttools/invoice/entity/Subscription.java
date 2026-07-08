@@ -8,10 +8,8 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "subscriptions")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor
 @Builder
 public class Subscription {
 
@@ -20,24 +18,21 @@ public class Subscription {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
-
-    @Column(name = "razorpay_subscription_id")
-    private String razorpaySubscriptionId;
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 10)
     private SubscriptionPlan plan = SubscriptionPlan.FREE;
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 15)
     private SubscriptionStatus status = SubscriptionStatus.ACTIVE;
 
-    @Column(name = "current_period_end")
-    private OffsetDateTime currentPeriodEnd;
+    @Column(name = "renewal_date")
+    private OffsetDateTime renewalDate;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
