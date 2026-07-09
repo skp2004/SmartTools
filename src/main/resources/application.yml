@@ -5,6 +5,11 @@ spring:
   application:
     name: invoice-saas
 
+  servlet:
+    multipart:
+      max-file-size: 25MB
+      max-request-size: 650MB
+
   # Database — Supabase PostgreSQL (Session Pooler — works even if port 5432 direct is blocked)
   # Set DB_URL, DB_USERNAME, DB_PASSWORD via environment variables or application-local.yml (gitignored)
   datasource:
