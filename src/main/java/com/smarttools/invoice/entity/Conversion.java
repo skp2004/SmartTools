@@ -24,6 +24,7 @@ public class Conversion {
     /** Nullable — guests don't have an account. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private User user;
 
     /** Tool identifier, e.g. "pdf-merge", "image-compress", "hash-generator". */

@@ -47,7 +47,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
     public ResponseEntity<Map<String, Object>> handleAuthentication(org.springframework.security.core.AuthenticationException ex) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, "Authentication failed: " + ex.getMessage());
+        String message = "Invalid email or password. Please try again.";
+        if (ex instanceof org.springframework.security.authentication.DisabledException) {
+            message = "Your account is disabled. Please contact support.";
+        } else if (ex instanceof org.springframework.security.authentication.LockedException) {
+            message = "Your account is locked. Please contact support.";
+        }
+        return buildResponse(HttpStatus.UNAUTHORIZED, message);
     }
 
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)

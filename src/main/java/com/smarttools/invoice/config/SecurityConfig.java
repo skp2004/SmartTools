@@ -76,11 +76,12 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
+        // Parse comma-separated origins from config (supports localhost dev + Vercel prod etc.)
         List<String> origins = Arrays.stream(allowedOrigins.split(","))
             .map(String::trim)
+            .filter(s -> !s.isEmpty())
             .toList();
         config.setAllowedOrigins(origins);
-        config.setAllowedOriginPatterns(List.of("http://localhost:*", "http://127.0.0.1:*"));
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Cache-Control"));

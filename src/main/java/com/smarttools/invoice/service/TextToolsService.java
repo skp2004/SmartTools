@@ -47,7 +47,21 @@ public class TextToolsService {
             String formattedJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
             return Map.of("result", formattedJson);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Malformed JSON input: " + e.getMessage());
+            String msg = e.getMessage();
+            if (msg != null) {
+                // Strip Jackson's long source location details to keep it clean and user-friendly
+                int idx = msg.indexOf(" at [Source:");
+                if (idx != -1) {
+                    msg = msg.substring(0, idx);
+                }
+                idx = msg.indexOf("\n at [Source:");
+                if (idx != -1) {
+                    msg = msg.substring(0, idx);
+                }
+            } else {
+                msg = "Malformed JSON input";
+            }
+            throw new IllegalArgumentException("Invalid JSON: " + msg.trim());
         }
     }
 
@@ -67,7 +81,17 @@ public class TextToolsService {
             String formattedXml = xmlOutput.getWriter().toString();
             return Map.of("result", formattedXml);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Malformed XML input: " + e.getMessage());
+            String msg = e.getMessage();
+            if (msg != null) {
+                // Keep only SAX/Parser error message part
+                int idx = msg.indexOf("org.xml.sax.");
+                if (idx != -1) {
+                    msg = msg.substring(idx);
+                }
+            } else {
+                msg = "Malformed XML input";
+            }
+            throw new IllegalArgumentException("Invalid XML: " + msg.trim());
         }
     }
 

@@ -24,3 +24,7 @@ pgdata/
 
 # Local Maven installation (downloaded by install-maven.ps1)
 .mvn/apache-maven-*/
+
+# Private keys and env files
+smartTools.pem
+*.env
